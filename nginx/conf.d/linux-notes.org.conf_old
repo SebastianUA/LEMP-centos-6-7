@@ -1,0 +1,93 @@
+  server {
+           listen 80;
+           server_name linux-notes.org  www.linux-notes.org;
+           #charset koi8-r;
+           access_log /var/log/nginx/access-linux-notes.org.log main;
+           error_log /var/log/nginx/error-linux-notes.org.log;
+  		
+           #uskorenie
+	   tcp_nopush on;
+	   tcp_nodelay on;
+ 
+           gzip on;
+           gzip_min_length 1000;
+           gzip_proxied any;
+           gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+           gzip_vary on;
+           gzip_comp_level 6;
+           gzip_buffers 16 8k;
+           gzip_http_version 1.1;
+           gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+           #include conf.d/gzip.conf;
+	   root /home/www/linux-notes/public_html;
+	   index  index.php index.html index.htm;
+
+
+location / {
+	   #root /home/www/linux-notes/public_html;
+           #index  index.php index.html index.htm;
+	   try_files $uri $uri/ /index.php?$args;
+	   #if ($request_uri ~* "\.(ico|css|js|gif|jpe?g|png)$") {
+	   #							  expires max;
+	   #							}	
+	error_page 404 /404.html;
+    	location = /404.html {
+        			root   /usr/share/nginx/html;
+    			      }
+	error_page 500 502 503 504 /50x.html;
+    	location = /50x.html {
+        	 		root   /usr/share/nginx/html;
+				#root  /home/www/windows-notes/public_html;     
+			      }
+	    }
+	    #if ($http_cookie ~* "comment_author_|wordpress_(?!test_cookie)|wp-postpass_" ) {
+			#							             set $do_not_cache 1;
+			#								   }
+
+			#fastcgi_cache_bypass $do_not_cache;
+			#fastcgi_no_cache $do_not_cache;
+			#fastcgi_pass_header Cookie;
+			#fastcgi_cache sites;
+			#fastcgi_cache_key $request_method|$host|$request_uri;
+			#fastcgi_cache_valid 301 8h;
+			#fastcgi_cache_valid 404 1h;
+			#fastcgi_cache_valid 200 1h;
+location ~ \.php$ {
+		   #root /home/www/linux-notes/public_html;
+		   fastcgi_pass 127.0.0.1:9000;
+		   fastcgi_index  index.php;
+        	   include        fastcgi_params;
+		   proxy_set_header X-Real-IP $remote_addr;
+	
+		  }
+ #location ~ ^/(wp-admin|wp-login\.php) {
+ #                                      allow 1.2.3.4;
+ #                                      deny all;
+ #					}
+# PLUGINS : Enable Rewrite Rules for Yoast SEO SiteMap
+  rewrite ^/sitemap_index\.xml$ /index.php?sitemap=1 last;
+  rewrite ^/([^/]+?)-sitemap([0-9]+)?\.xml$ /index.php?sitemap=$1&sitemap_n=$2 last;
+  
+
+ location = /favicon.ico {
+                          log_not_found off;
+                          access_log off;
+                          }
+ location = /robots.txt {
+                          allow all;
+                          log_not_found off;
+                          access_log off;
+                          }
+  
+ location ~ /\.ht {
+                    deny  all;
+                   }
+  
+ location ~* ^.+\.(css|js|ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|rss|atom|jpg|jpeg|gif|png|ico|bmp|zip|tgz|gz|rar|bz2|doc|txt|rtf|xls|exe|ppt|tar|mid|midi|wav|swf)$ {
+                    root /home/www/linux-notes/public_html;
+		    expires max;
+                    log_not_found off;
+                    access_log off;
+                          }
+
+}
